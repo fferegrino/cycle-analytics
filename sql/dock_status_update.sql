@@ -1,6 +1,7 @@
 CREATE TABLE dock_status_update (
   `station_id` STRING,
   `action` STRING,
+  `available_docks` INT,
   `timestamp` TIMESTAMP(3)
 ) WITH (
   'connector' = 'kafka',

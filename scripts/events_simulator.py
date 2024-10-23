@@ -44,6 +44,7 @@ while True:
                 f"{datetime.now()} - Station {station} docked a bike. Available docks: {station_available_docks[station]}"
             )
             message["action"] = "dock"
+            message["available_docks"] = station_available_docks[station]
         else:
             print(f"{datetime.now()} - Station {station} is full. No bike docked.")
     else:
@@ -53,6 +54,7 @@ while True:
                 f"{datetime.now()} - Station {station} undocked a bike. Available docks: {station_available_docks[station]}"
             )
             message["action"] = "undock"
+            message["available_docks"] = station_available_docks[station]
         else:
             print(f"{datetime.now()} - Station {station} is empty. No bike undocked.")
 
