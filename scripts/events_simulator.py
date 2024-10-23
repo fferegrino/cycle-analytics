@@ -33,7 +33,7 @@ while True:
     action_random = random.random()
 
     message = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
         "station_id": station,
     }
 

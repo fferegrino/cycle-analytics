@@ -2,7 +2,8 @@ CREATE TABLE dock_status_update (
   `station_id` STRING,
   `action` STRING,
   `available_docks` INT,
-  `timestamp` TIMESTAMP(3)
+  `timestamp` TIMESTAMP(3),
+  WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
 ) WITH (
   'connector' = 'kafka',
   'topic' = 'dock_status_update',
