@@ -1,4 +1,5 @@
-place_id,docks,bikes
-BikePoint_1,22,10
-BikePoint_2,25,25
-BikePoint_3,30,15
+place_id,docks,bikes,latitude,longitude,name
+BikePoint_1,22,10,51.526297,-0.079067,Shoreditch
+BikePoint_2,25,25,51.521343,-0.092840,Finsbury
+BikePoint_3,30,15,51.517391,-0.065528,Whitechapel
+BikePoint_4,22,10,51.519314,-0.113797,Holborn

@@ -8,13 +8,15 @@
 docker compose up --build -d
 ```
 
-### 2. Setup Kafka infra
+### 2. Setup the database and tables
+
+This will create the Kafka topics and the database tables.
 
 ```
-python scripts/setup_topic.py
+python scripts/setup.py
 ```
 
-### 3. Start producing events
+### 3. Start producing dock events
 
 ```
 python scripts/events_simulator.py
@@ -32,13 +34,19 @@ python scripts/dummy_consumer.py
 docker compose run flink-sql-client
 ```
 
-### 5. Create the input table
+### 5. Create the tables
+
+#### 5.1 Create the `dock_status_update` table
+
+This table will "store" the events from the `dock_status_update` topic.
 
 ```sql
 CREATE TABLE dock_status_update (
   `station_id` STRING,
   `action` STRING,
-  `timestamp` TIMESTAMP(3)
+  `available_docks` INT,
+  `timestamp` TIMESTAMP(3),
+  WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
 ) WITH (
   'connector' = 'kafka',
   'topic' = 'dock_status_update',
@@ -48,9 +56,30 @@ CREATE TABLE dock_status_update (
   'value.format' = 'json',
   'sink.partitioner' = 'fixed'
 );
+
 ```
 
-#### 5.1 Verify the table is created
+#### 5.2 Create the `bike_stations` table
+
+This table will store the bike stations data.
+
+```sql
+CREATE TABLE bike_stations (
+    place_id STRING,
+    `name` STRING,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(10, 8),
+    PRIMARY KEY (place_id) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://mysql:3306/bike_sharing?useSSL=false',
+    'table-name' = 'bike_stations',
+    'username' = 'root',
+    'password' = 'root'
+);
+```
+
+#### 5.3 Verify the tables are created (optional)
 
 ```sql
 SHOW TABLES;
@@ -60,4 +89,10 @@ Now you can see the data being "streamed" into the table by running:
 
 ```sql
 SELECT * FROM dock_status_update;
+```
+
+And the bike stations data by running:
+
+```sql
+SELECT * FROM bike_stations;
 ```
