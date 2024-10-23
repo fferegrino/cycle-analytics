@@ -59,6 +59,6 @@ while True:
             print(f"{datetime.now()} - Station {station} is empty. No bike undocked.")
 
     if "action" in message:
-        producer.produce(os.environ["DOCK_SATUS_UPDATE_TOPIC"], value=json.dumps(message))
+        producer.produce(os.environ["DOCK_STATUS_UPDATE_TOPIC"], value=json.dumps(message))
         producer.poll()
     time.sleep(random.randint(0, 2))
