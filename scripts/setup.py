@@ -1,22 +1,21 @@
+import csv
 import os
 import time
+
 import mysql.connector
-from mysql.connector import Error
 from confluent_kafka.admin import AdminClient, NewTopic
 from dotenv import load_dotenv
-import csv
+from mysql.connector import Error
 
 load_dotenv()
+
 
 def setup_kafka_topics():
     kafka_admin = AdminClient({"bootstrap.servers": os.environ["KAFKA_BROKER"]})
 
     kafka_topics = {
-        os.environ["DOCK_STATUS_UPDATE_TOPIC"]: {
-            "num_partitions": 1,
-            "replication_factor": 1
-        }
-        # Add more topics here as needed
+        os.environ["DOCK_STATUS_UPDATE_TOPIC"]: {"num_partitions": 1, "replication_factor": 1, "config": {"retention.ms": "1800"}},
+        os.environ["WEATHER_UPDATE_TOPIC"]: {"num_partitions": 1, "replication_factor": 1, "config": {"retention.ms": "1800"}},
     }
 
     for topic_name, config in kafka_topics.items():
@@ -31,6 +30,7 @@ def setup_kafka_topics():
         print(f"Creating topic {topic_name}")
         kafka_admin.create_topics([new_topic])
 
+
 def setup_mysql_database():
 
     # MySQL configuration
@@ -38,16 +38,14 @@ def setup_mysql_database():
         "host": os.environ.get("MYSQL_HOST", "localhost"),
         "user": os.environ.get("MYSQL_USER"),
         "password": os.environ.get("MYSQL_PASSWORD"),
-        "database": os.environ.get("MYSQL_DATABASE", "bike_sharing")
+        "database": os.environ.get("MYSQL_DATABASE", "bike_sharing"),
     }
 
     connection = None
 
     try:
         connection = mysql.connector.connect(
-            host=db_config.get("host", "localhost"),
-            user=db_config.get("user"),
-            password=db_config.get("password")
+            host=db_config.get("host", "localhost"), user=db_config.get("user"), password=db_config.get("password")
         )
 
         if connection.is_connected():
@@ -59,7 +57,6 @@ def setup_mysql_database():
 
             connection.database = db_name
 
-
             create_table_query = """CREATE TABLE IF NOT EXISTS bike_stations (
                 place_id VARCHAR(255) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -70,17 +67,14 @@ def setup_mysql_database():
             cursor.execute(create_table_query)
             print(f"Table 'bike_stations' created successfully.")
 
-
-            with open('stations.csv', newline='') as csvfile:
+            with open("stations.csv", newline="") as csvfile:
                 reader = csv.reader(csvfile)
-                next(reader) # Skip the header row
+                next(reader)  # Skip the header row
                 for row in reader:
-                    cursor.execute("INSERT INTO bike_stations (place_id, name, latitude, longitude) VALUES (%s, %s, %s, %s)", (
-                        row[0],
-                        row[5],
-                        float(row[3]),
-                        float(row[4])
-                    ))
+                    cursor.execute(
+                        "INSERT INTO bike_stations (place_id, name, latitude, longitude) VALUES (%s, %s, %s, %s)",
+                        (row[0], row[5], float(row[3]), float(row[4])),
+                    )
                 connection.commit()
 
     except Error as e:
@@ -90,6 +84,7 @@ def setup_mysql_database():
             cursor.close()
             connection.close()
             print("MySQL connection is closed")
+
 
 if __name__ == "__main__":
 

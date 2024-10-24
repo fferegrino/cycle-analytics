@@ -16,10 +16,14 @@ This will create the Kafka topics and the database tables.
 python scripts/setup.py
 ```
 
-### 3. Start producing dock events
+### 3. Start producing events
 
 ```
 python scripts/events_simulator.py
+```
+
+```
+python scripts/weather_service.py
 ```
 
 #### 3.1 Verify events are being sent (optional)
